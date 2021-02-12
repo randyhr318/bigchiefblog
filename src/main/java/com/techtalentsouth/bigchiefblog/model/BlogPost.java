@@ -56,6 +56,10 @@ private String blogEntry;
         this.blogEntry = blogEntry;
     }
 
+    public Long getId() {
+        return id;
+    }
+
     @Override
     public String toString() {
         return "BlogPost{" +

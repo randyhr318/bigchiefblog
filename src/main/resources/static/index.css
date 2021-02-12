@@ -1,0 +1,32 @@
+.jumbotron {
+  background: url(professor_longhair3.jpeg) no-repeat center center fixed;
+  -webkit-background-size: cover;
+  -moz-background-size: cover;
+  -o-background-size: cover;
+  background-color: green;
+  background-blend-mode: screen;
+
+
+
+
+
+ /*{
+background-repeat: no-repeat;
+  background-image: url("professor_longhair3.jpeg");
+  background-blend-mode: lighten;
+}*/
+
+h1 {
+  color: Blue;
+  text-align: left;
+}
+
+p {
+  font-family: verdana;
+  font-size: 20px;
+}
+
+td {
+font-family: verdana;
+  font-size: 20px;
+}
