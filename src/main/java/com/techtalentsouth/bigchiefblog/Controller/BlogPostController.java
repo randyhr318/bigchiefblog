@@ -2,6 +2,7 @@ package com.techtalentsouth.bigchiefblog.Controller;
 
 import com.techtalentsouth.bigchiefblog.model.BlogPost;
 import com.techtalentsouth.bigchiefblog.repo.BlogPostRepository;
+import org.apache.catalina.authenticator.SavedRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -10,41 +11,35 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Controller
 public class BlogPostController {
-
-    //@Autowired allows us to implement whats known as dependency injection
-    //allows dependency injection allows us to give certain objects the dependencies that it needs
-
-
+    //@Autowired allows us to implement dependency injection
+    //dependency injection allows us to give certain objects the dependencies that they need
     @Autowired
     private BlogPostRepository blogPostRepository;
     private static List<BlogPost> posts = new ArrayList<>();
-    //below is a constructor based dependency injection
-    //if you only have one dependency, this is considered best practice
-//    public BlogPostController(BlogPostRepository blogPostRepository) {
-//        this.blogPostRepository = blogPostRepository;
-//    }
-
-
-    @GetMapping("/")
-    public String index(BlogPost blogPost, Model model) {
-        model.addAttribute("posts",posts);
-        //since we are utilizing thymeleaf
-        //out output will generated in a template
-        //returning a reference to said template
+    //GetMapping annotation specifies the route to this URI, in this case
+    @GetMapping(value="/")
+    public String index(BlogPost blogPost, Model model){
+        //because we are utilizing thymeleaf
+        //our output will be generated in a template
+        //returning a reference to that template
         //will allow us to show the data that we want
+        model.addAttribute("posts", posts);
+        posts.removeAll(posts);
+        for (BlogPost post : blogPostRepository.findAll()){
+            posts.add(post);
+        }
         return "blogpost/index";
     }
-    //method
-
+    //method to view new blog posts we have created
+    //will allow us to show out blog posts
     @GetMapping(value = "/blogpost/new")
     public String newBlog (BlogPost blogPost) {
         return "blogpost/new";
     }
-
-
     //this is where we are mapping our post requests in our project
     private BlogPost blogPost;
     @PostMapping(value="/blogpost")
@@ -57,15 +52,41 @@ public class BlogPostController {
         model.addAttribute( "blogEntry", blogPost.getBlogEntry());
         return "blogpost/result";
     }
-
-
-    //
-
-
-
     @RequestMapping(value = "/blogpost/{id}", method = RequestMethod.DELETE)
-    public String deletePostWithId(@PathVariable long id, BlogPost blogPost){
+    public String deletePostWithId(@PathVariable Long id, BlogPost blogPost) {
         blogPostRepository.deleteById(id);
-        return "blogpost/Index";
+        return "blogpost/index";
+    }
+
+
+    @RequestMapping(value = "blogposts/delete/{id}")
+    public String deletePostById(@PathVariable Long id, BlogPost blogPost) {
+        blogPostRepository.deleteById(id);
+        return "blogpost/delete";
+    }
+
+    @RequestMapping(value = "/blogpost/{id}", method = RequestMethod.GET)
+    public String editPostWithId(@PathVariable Long id, BlogPost blogPost, Model model){
+        Optional<BlogPost> post = blogPostRepository.findById(id);
+        if(post.isPresent()){
+            BlogPost actualPost = post.get();
+            model.addAttribute("blogPost", actualPost);
+        }
+        return "blogpost/edit";
+    }
+
+    @RequestMapping(value = "/blogpost/update/{id}")
+    public String updateExistingPost(@PathVariable Long id, BlogPost blogPost, Model model){
+        Optional<BlogPost> post = blogPostRepository.findById(id);
+        if (post.isPresent()) {
+            BlogPost actualPost= post.get();
+            actualPost.setTitle(blogPost.getTitle());
+            actualPost.setAuthor(blogPost.getAuthor());
+            actualPost.setBlogEntry(blogPost.getBlogEntry());
+            blogPostRepository.save(actualPost);
+            model.addAttribute("blogPost", actualPost);
+        }
+        return "blogpost/result";
     }
 }
+
